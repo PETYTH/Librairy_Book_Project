@@ -1,10 +1,179 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bibliothèque Numérique</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+<div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fas fa-book-open"></i>
+            <h1>BiblioTech</h1>
+        </div>
+        <nav class="menu">
+            <ul>
+                <li class="active" data-view="books"><i class="fas fa-book"></i> Tous les livres</li>
+                <li data-view="add-book"><i class="fas fa-plus-circle"></i> Ajouter un livre</li>
+                <li data-view="genres"><i class="fas fa-tags"></i> Genres</li>
+            </ul>
+        </nav>
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total de livres</h3>
+                <p id="total-books">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Genres</h3>
+                <p id="total-genres">0</p>
+            </div>
+        </div>
+    </aside>
 
+    <!-- Main Content -->
+    <main class="content">
+        <header>
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Rechercher un titre, auteur...">
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle"><i class="fas fa-moon"></i></button>
+                <div class="user-profile">
+                    <img src="https://api.dicebear.com/7.x/micah/svg?seed=library" alt="User">
+                </div>
+            </div>
+        </header>
+
+        <!-- Books View -->
+        <div class="view" id="books-view">
+            <div class="section-header">
+                <h2>Bibliothèque</h2>
+                <div class="filters">
+                    <select id="sort-by">
+                        <option value="title">Trier par titre</option>
+                        <option value="author">Trier par auteur</option>
+                        <option value="genre">Trier par genre</option>
+                    </select>
+                </div>
+            </div>
+            <div class="book-container" id="books-grid">
+                <!-- Books will be loaded here -->
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Book View -->
+        <div class="view hidden" id="add-book-view">
+            <div class="section-header">
+                <h2>Ajouter un nouveau livre</h2>
+            </div>
+            <form id="add-book-form" class="book-form">
+                <div class="form-group">
+                    <label for="title">Titre</label>
+                    <input type="text" id="book-title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="author">Auteur</label>
+                    <input type="text" id="book-author" name="author" required>
+                </div>
+                <div class="form-group">
+                    <label for="genre">Genre</label>
+                    <input type="text" id="book-genre" name="genre" required>
+                </div>
+                <div class="form-group">
+                    <label for="summary">Résumé</label>
+                    <textarea id="book-summary" name="summary" rows="5" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" id="cancel-add">Annuler</button>
+                    <button type="submit" class="btn-primary">Ajouter le livre</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Genres View -->
+        <div class="view hidden" id="genres-view">
+            <div class="section-header">
+                <h2>Genres littéraires</h2>
+            </div>
+            <div class="genres-container" id="genres-grid">
+                <!-- Genres will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Book Details Modal -->
+        <div class="modal" id="book-modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <div class="book-details">
+                    <div class="book-cover">
+                        <div class="book-cover-placeholder">
+                            <i class="fas fa-book"></i>
+                        </div>
+                    </div>
+                    <div class="book-info">
+                        <h2 id="modal-title"></h2>
+                        <p class="book-author">Par <span id="modal-author"></span></p>
+                        <span class="book-genre" id="modal-genre"></span>
+                        <div class="book-summary">
+                            <h3>Résumé</h3>
+                            <p id="modal-summary"></p>
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn-edit" id="edit-book"><i class="fas fa-edit"></i> Modifier</button>
+                            <button class="btn-delete" id="delete-book"><i class="fas fa-trash"></i> Supprimer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Book Modal -->
+        <div class="modal" id="edit-modal">
+            <div class="modal-content">
+                <span class="close-edit-modal">&times;</span>
+                <h2>Modifier le livre</h2>
+                <form id="edit-book-form" class="book-form">
+                    <input type="hidden" id="edit-book-id">
+                    <div class="form-group">
+                        <label for="edit-title">Titre</label>
+                        <input type="text" id="edit-title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-author">Auteur</label>
+                        <input type="text" id="edit-author" name="author" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-genre">Genre</label>
+                        <input type="text" id="edit-genre" name="genre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-summary">Résumé</label>
+                        <textarea id="edit-summary" name="summary" rows="5" required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary close-edit-modal">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer les modifications</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container"></div>
+    </main>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
